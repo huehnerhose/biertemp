@@ -18,6 +18,7 @@
 #define uart_puts_P
 #include "onewire.h"
 #include "ds18x20.h"
+#include "ds1337.h"
 
 #include "lcd.h"
 
@@ -26,13 +27,6 @@
 uint8_t state, next_state;
 
 struct Flag Flags;
-
-//struct {
-	//unsigned char heaterOn : 1;
-	//unsigned char change : 1;
-	//unsigned char measStarted : 1;
-	//unsigned char int0 : 1;
-//} Flags;
 
 //DS18X20
 uint8_t gSensorIDs[MAXSENSORS][OW_ROMCODE_SIZE];
@@ -115,14 +109,7 @@ uint8_t get_key_long( uint8_t key_mask )
 	return get_key_press( get_key_rpt( key_mask ));
 }
 
-/************************************************************************/
-/* Defines DS1337                                                       */
-/************************************************************************/
-#define DS1337 0xD0
-#define SECONDS 0x00
-#define MINUTES 0x01
-#define BCD2BIN(val) (((val)&15) + ((val)>>4)*10)
-#include "i2cmaster.h"
+
 
 
 /************************************************************************/
@@ -235,13 +222,11 @@ ISR( TIMER2_OVF_vect )                            // every 10ms
 	//}
 }
 
-ISR( INT0_vect ){
-	if(Flags.change == 0){
-		Flags.change = 1;
-		state = next_state;
-	}
+ISR( INT1_vect ){
+	Flags.change = 1;
+	Flags.alarm = 1;
+	state = ALARM;	
 }
-
 
 static uint16_t calcMeasMiddle(int16_t meas[], uint8_t nSensors){
 	int16_t middle = 0;
@@ -272,6 +257,7 @@ int main(void)
 	int16_t measMiddle = 0;
 	
 	frontend_init(nSensors);
+	i2c_init();
 	
 	//temperaturmessung in Interrupt starten
 	TCCR1B |= ((1<<CS12));
@@ -284,21 +270,24 @@ int main(void)
 	int offset = 0;
 	encode_init();
 	
-	//PD2 auf Eingang für Interrupt vom Button
+	//PD2 auf Eingang für Pseudo-Interrupt vom Button
 	DDRD &= ~(1 << DDD2);
 	PORTD |= (1<<PD2); //interner PullUp
 	//GICR |= (1<<INT0); //Interrupt für INT0 aktivieren
 	TCCR2 |= ( (1<<CS22) || (1<<CS21) || (1<<CS20) );
-	TCNT2 = 255-117;
+	TCNT2 = 255-117;	//Hier wird der Timer für den Pseudo-Interrupt so eingestellt, dass alle 10ms gefeuert wird
 	TIMSK |= (1<<TOIE2);
+	
+	//PD3 für INT1 für INTA von DS1337
+	DDRD &= (1<<DDD3);
+	PORTD |= (1<<PD3);
+	GICR |= (1<<INT1);
 	
 	state = MAIN;
 	uint8_t *wheel_target = NULL; //Wird auf die Variable gelenkt, die verändert werden soll
 	uint8_t wheel_max = 0;
 	uint8_t wheel_min = 0;
 
-	//uint8_t ret;
-	i2c_init();
 	wdt_enable(WDTO_1S); // enable 1s watchdog timer
 	sei();
 	while(1)
@@ -325,14 +314,7 @@ int main(void)
 			}
 		}
 
-//Read RTC
-/*
-			i2c_start_wait(DS1337+I2C_WRITE);
-			i2c_write(0x00);
-			i2c_rep_start(DS1337+I2C_READ);
-			ret = i2c_readAck();
-			ret = BCD2BIN(ret);
-*/
+
 		if(Flags.change == 1){
 			Flags.change = 0;	
 			if(state == MAIN){
@@ -346,8 +328,10 @@ int main(void)
 					frontend_menu_main(&wheel_target, &next_state, &state, &wheel_min, &wheel_max);
 			}else if(state == TEMP_DETAILS){
 				frontend_tempdetails(&wheel_target, &next_state, measVal, measMiddle, nSensors);
+			}else if (state == ALARM){
+				frontend_alarm(&wheel_target, &next_state);
 			}else{
-				frontend_else(&wheel_target, &next_state, &state, &wheel_min, &wheel_max);
+				frontend_else(&wheel_target, &next_state, &state, &wheel_min, &wheel_max, getMinutes(), getHours(), getMinutesSum());
 			}
 		}
 			

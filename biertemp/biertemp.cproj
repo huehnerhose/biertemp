@@ -60,6 +60,7 @@
       <Value>../lcd</Value>
       <Value>../i2c</Value>
       <Value>../frontend</Value>
+      <Value>../ds1337</Value>
     </ListValues>
   </avrgcc.compiler.directories.IncludePaths>
   <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -104,6 +105,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="biertemp.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ds1337\ds1337.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ds1337\ds1337.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="ds18x20\crc8.c">
@@ -151,6 +158,7 @@
     <Folder Include="lcd" />
     <Folder Include="i2c" />
     <Folder Include="frontend" />
+    <Folder Include="ds1337" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

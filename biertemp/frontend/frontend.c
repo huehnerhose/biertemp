@@ -117,7 +117,7 @@ void frontend_menu_temp(uint8_t **wheel_target, uint8_t *next_state, uint8_t *st
 	*wheel_max = MENU_MAIN;
 	lcd_gotoxy(4,0);
 	lcd_puts("show temp");
-	lcd_gotoxy(5,1);
+	lcd_gotoxy(4,1);
 	lcd_puts("details");
 }
 
@@ -160,17 +160,25 @@ extern void frontend_tempdetails(uint8_t **wheel_target, uint8_t *next_state, in
 	lcd_puts(buffer);
 }
 
+void frontend_alarm(uint8_t **wheel_target, uint8_t *next_state){
+	*next_state = MAIN;
+	*wheel_target = NULL;
+	lcd_clrscr();
+	lcd_puts("ALARM");
+}
 
 
 
 
 
-
-void frontend_else(uint8_t **wheel_target, uint8_t *next_state, uint8_t *state, uint8_t *wheel_min, uint8_t *wheel_max){
+void frontend_else(uint8_t **wheel_target, uint8_t *next_state, uint8_t *state, uint8_t *wheel_min, uint8_t *wheel_max, uint8_t minutes, uint8_t hours, uint8_t minutesSum){
 	char buffer[16];
 	lcd_clrscr();
 	lcd_puts("else? ");
-	sprintf(buffer, "%i %i %i", *state, *wheel_min, *wheel_max);
+	sprintf(buffer, "%i %i %i %i", *state, *wheel_min, *wheel_max, minutesSum);
+	lcd_puts(buffer);
+	lcd_gotoxy(0,1);
+	sprintf(buffer, "%i:%i", hours, minutes);
 	lcd_puts(buffer);
 	*next_state = MAIN;
 }

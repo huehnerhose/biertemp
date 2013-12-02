@@ -21,6 +21,7 @@
 #define TEMP_CANCEL		13
 
 #define TEMP_DETAILS	200
+#define ALARM			210
 
 
 #define UP				0
@@ -38,6 +39,7 @@ typedef struct Flag{
 	unsigned char change : 1;
 	unsigned char measStarted : 1;
 	unsigned char int0 : 1;
+	unsigned char alarm : 1;
 };
 
 extern void frontend_init(uint8_t nSensors);
@@ -52,8 +54,8 @@ extern void frontend_menu_main(uint8_t **wheel_target, uint8_t *next_state, uint
 
 extern void frontend_tempdetails(uint8_t **wheel_target, uint8_t *next_state, int16_t *measVal, uint16_t measMiddle, uint8_t nSensors);
 
+extern void frontend_alarm(uint8_t **wheel_target, uint8_t *next_state);
 
-
-extern void frontend_else(uint8_t **wheel_target, uint8_t *next_state, uint8_t *state, uint8_t *wheel_min, uint8_t *wheel_max);
+extern void frontend_else(uint8_t **wheel_target, uint8_t *next_state, uint8_t *state, uint8_t *wheel_min, uint8_t *wheel_max, uint8_t minutes, uint8_t hours, uint8_t minutesSum);
 
 #endif /* FRONTEND_H_ */
