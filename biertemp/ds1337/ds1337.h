@@ -64,5 +64,5 @@ extern uint8_t ds1337_getDate();
 extern void ds1337_setDate(uint8_t date);
 extern void ds1337_setAlarmMinutes(uint8_t min);
 extern void ds1337_setHour(uint8_t hour);
-
+extern void ds1337_init();
 #endif /* DS1337_H_ */

@@ -32,6 +32,6 @@ uint8_t debounce_get_key_rpt( uint8_t key_mask );
 uint8_t debounce_get_key_state( uint8_t key_mask );
 uint8_t debounce_get_key_short( uint8_t key_mask );
 uint8_t debounce_get_key_long( uint8_t key_mask );
-
+void debounce_init();
 
 #endif /* DEBOUNCE_H_ */

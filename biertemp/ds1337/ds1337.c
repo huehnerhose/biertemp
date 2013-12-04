@@ -6,6 +6,15 @@
  */ 
 #include <inttypes.h>
 #include "ds1337.h"
+#include "i2cmaster.h"
+
+void ds1337_init(){
+	i2c_init();
+	//PD3 für INT1 für INTA von DS1337
+	DDRD &= (1<<DDD3);
+	PORTD |= (1<<PD3);
+	GICR |= (1<<INT1);
+}
 
 uint8_t ds1337_getHours(){
 	uint8_t ret;

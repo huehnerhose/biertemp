@@ -29,6 +29,10 @@ ISR( TIMER0_OVF_vect )             // 1ms for manual movement
 
 void rotary_encode_init( void )
 {
+	//Timer0, mit Interrupt ca. jede 1000/s
+	TCCR0 |= ((1<<CS01));
+	TIMSK |= (1<<TOIE0);
+	
 	int8_t new;
 	
 	new = 0;
