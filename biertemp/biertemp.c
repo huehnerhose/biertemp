@@ -24,93 +24,14 @@
 
 #include "frontend.h"
 
+#include "debounce.h"
+
 uint8_t state, next_state;
 
 struct Flag Flags;
 
 //DS18X20
 uint8_t gSensorIDs[MAXSENSORS][OW_ROMCODE_SIZE];
-
-/************************************************************************/
-/* Entprellen                                                           */
-/************************************************************************/
-#define KEY_DDR         DDRD
-#define KEY_PORT        PORTD
-#define KEY_PIN         PIND
-#define KEY0            2
-//#define KEY1            4
-//#define KEY2            4
-#define ALL_KEYS        (1<<KEY0)
-
-//#define REPEAT_MASK     (1<<KEY1 | 1<<KEY2)       // repeat: key1, key2
-//#define REPEAT_START    50                        // after 500ms
-//#define REPEAT_NEXT     20                        // every 200ms
-//
-volatile uint8_t key_state;                                // debounced and inverted key state:
-// bit = 1: key pressed
-volatile uint8_t key_press;                                // key press detect
-
-volatile uint8_t key_rpt;                                  // key long press and repeat
-
-///////////////////////////////////////////////////////////////////
-//
-// check if a key has been pressed. Each pressed key is reported
-// only once
-//
-uint8_t get_key_press( uint8_t key_mask )
-{
-	cli();                                          // read and clear atomic !
-	key_mask &= key_press;                          // read key(s)
-	key_press ^= key_mask;                          // clear key(s)
-	sei();
-	return key_mask;
-}
-
-///////////////////////////////////////////////////////////////////
-//
-// check if a key has been pressed long enough such that the
-// key repeat functionality kicks in. After a small setup delay
-// the key is reported being pressed in subsequent calls
-// to this function. This simulates the user repeatedly
-// pressing and releasing the key.
-//
-uint8_t get_key_rpt( uint8_t key_mask )
-{
-	cli();                                          // read and clear atomic !
-	key_mask &= key_rpt;                            // read key(s)
-	key_rpt ^= key_mask;                            // clear key(s)
-	sei();
-	return key_mask;
-}
-
-///////////////////////////////////////////////////////////////////
-//
-// check if a key is pressed right now
-//
-uint8_t get_key_state( uint8_t key_mask )
-
-{
-	key_mask &= key_state;
-	return key_mask;
-}
-
-///////////////////////////////////////////////////////////////////
-//
-uint8_t get_key_short( uint8_t key_mask )
-{
-	cli();                                          // read key state and key press atomic !
-	return get_key_press( ~key_state & key_mask );
-}
-
-///////////////////////////////////////////////////////////////////
-//
-uint8_t get_key_long( uint8_t key_mask )
-{
-	return get_key_press( get_key_rpt( key_mask ));
-}
-
-
-
 
 /************************************************************************/
 /* Subroutines rotary                                                   */
@@ -198,6 +119,7 @@ ISR(TIMER1_OVF_vect){				// Temperaturmessung anwerfen
 	Flags.measStarted = 1;
 }
 
+/*
 ISR( TIMER2_OVF_vect )                            // every 10ms
 {
 	//lcd_clrscr();
@@ -221,6 +143,7 @@ ISR( TIMER2_OVF_vect )                            // every 10ms
 		//key_rpt |= key_state & REPEAT_MASK;
 	//}
 }
+*/
 
 ISR( INT1_vect ){
 	Flags.change = 1;
