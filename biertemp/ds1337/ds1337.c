@@ -7,57 +7,57 @@
 #include <inttypes.h>
 #include "ds1337.h"
 
-uint8_t getHours(){
+uint8_t ds1337_getHours(){
 	uint8_t ret;
 	i2c_start_wait(DS1337+I2C_WRITE);
-	i2c_write(HOURS);
+	i2c_write(DS1337_HOURS);
 	i2c_rep_start(DS1337+I2C_READ);
 	ret  = i2c_readAck();
 	ret = ret & (0b0011111);
-	return BCD2BIN(ret);
+	return DS1337_BCD2BIN(ret);
 }
 
-uint8_t getMinutes(){
+uint8_t ds1337_getMinutes(){
 	uint8_t ret;
 	i2c_start_wait(DS1337+I2C_WRITE);
-	i2c_write(MINUTES);
+	i2c_write(DS1337_MINUTES);
 	i2c_rep_start(DS1337+I2C_READ);
 	ret = i2c_readAck();
-	return BCD2BIN(ret);
+	return DS1337_BCD2BIN(ret);
 }
 
-uint8_t getMinutesSum(){
-	return getMinutes() + 60*getHours();
+uint8_t ds1337_getMinutesSum(){
+	return ds1337_getMinutes() + 60*ds1337_getHours();
 }
 
-uint8_t getDate(){
+uint8_t ds1337_getDate(){
 	i2c_start_wait(DS1337+I2C_WRITE);
-	i2c_write(DATE);
+	i2c_write(DS1337_DATE);
 	i2c_rep_start(DS1337+I2C_READ);
 	return i2c_readAck();
 }
 
-void setDate(uint8_t date){
+void ds1337_setDate(uint8_t date){
 	i2c_rep_start(DS1337+I2C_WRITE);
-	i2c_write(DATE);
+	i2c_write(DS1337_DATE);
 	i2c_write(date);
 	i2c_stop();
 }
 
 static uint8_t getHourRaw(){
 	i2c_start_wait(DS1337+I2C_WRITE);
-	i2c_write(MINUTES);
+	i2c_write(DS1337_MINUTES);
 	i2c_rep_start(DS1337+I2C_READ);
 	return i2c_readAck();
 }
 //TODO
-void setHour(uint8_t hour){
+void ds1337_setHour(uint8_t hour){
 	i2c_rep_start(DS1337+I2C_WRITE);
-	i2c_write(HOURS);
+	i2c_write(DS1337_HOURS);
 	i2c_write( hour );
 	i2c_stop();
 }
 
-void setAlarmMinutes(uint8_t min){
+void ds1337_setAlarmMinutes(uint8_t min){
 	i2c_rep_start(DS1337+I2C_WRITE);
 }

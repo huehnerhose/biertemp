@@ -62,6 +62,7 @@
       <Value>../frontend</Value>
       <Value>../ds1337</Value>
       <Value>../debounce</Value>
+      <Value>../rotary</Value>
     </ListValues>
   </avrgcc.compiler.directories.IncludePaths>
   <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -132,9 +133,6 @@
     <Compile Include="ds18x20\ds18x20.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="ds18x20\ds18x20_supply.c">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="ds18x20\onewire.c">
       <SubType>compile</SubType>
     </Compile>
@@ -159,6 +157,12 @@
     <Compile Include="lcd\lcd.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rotary\rotary.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rotary\rotary.h">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ds18x20" />
@@ -167,6 +171,7 @@
     <Folder Include="frontend" />
     <Folder Include="ds1337" />
     <Folder Include="debounce" />
+    <Folder Include="rotary" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

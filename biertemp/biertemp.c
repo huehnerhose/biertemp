@@ -26,6 +26,8 @@
 
 #include "debounce.h"
 
+#include "rotary.h"
+
 uint8_t state, next_state;
 
 struct Flag Flags;
@@ -33,37 +35,7 @@ struct Flag Flags;
 //DS18X20
 uint8_t gSensorIDs[MAXSENSORS][OW_ROMCODE_SIZE];
 
-/************************************************************************/
-/* Subroutines rotary                                                   */
-/************************************************************************/
-#define PHASE_A     (PINC & 1<<PC3)
-#define PHASE_B     (PINC & 1<<PC2)
-//importierter Drehimpulscode
-volatile int8_t enc_delta;          // -128 ... 127
-static int8_t last;
-void encode_init( void )
-{
-	int8_t new;
-	
-	new = 0;
-	if( PHASE_A )
-		new = 3;
-	if( PHASE_B )
-		new ^= 1;                   // convert gray to binary
-	last = new;                   // power on state
-	enc_delta = 0;
-}
 
-int8_t encode_read4( void )         // read four step encoders
-{
-	int8_t val;
-	
-	cli();
-	val = enc_delta;
-	enc_delta = val & 3;
-	sei();
-	return val >> 2;
-}
 /************************************************************************/
 /* Subroutines DS18X20                                                  */
 /************************************************************************/
@@ -99,6 +71,7 @@ static uint8_t search_sensors(void)
 	return nSensors;
 }
 
+/*
 ISR( TIMER0_OVF_vect )             // 1ms for manual movement
 {
 	int8_t new, diff;
@@ -112,7 +85,7 @@ ISR( TIMER0_OVF_vect )             // 1ms for manual movement
 		last = new;                 // store new as next last
 		enc_delta += (diff & 2) - 1;        // bit 1 = direction (+/-)
 	}
-}
+}*/
 
 ISR(TIMER1_OVF_vect){				// Temperaturmessung anwerfen
 	DS18X20_start_meas(DS18X20_POWER_EXTERN, NULL);
@@ -191,7 +164,7 @@ int main(void)
 	TCCR0 |= ((1<<CS01));
 	TIMSK |= (1<<TOIE0);
 	int offset = 0;
-	encode_init();
+	rotary_encode_init();
 	
 	//PD2 auf Eingang für Pseudo-Interrupt vom Button
 	DDRD &= ~(1 << DDD2);
@@ -217,12 +190,12 @@ int main(void)
     {
 		wdt_reset();
 		
-		if( get_key_short( 1<<KEY0 )){
+		if( debounce_get_key_short( 1<<DEBOUNCE_KEY0 )){
 			Flags.change = 1;
 			state = next_state;
 		}
 		
-		offset = encode_read4();
+		offset = rotary_encode_read4();
 		if(offset != 0){
 			Flags.change = 1;
 
@@ -254,7 +227,7 @@ int main(void)
 			}else if (state == ALARM){
 				frontend_alarm(&wheel_target, &next_state);
 			}else{
-				frontend_else(&wheel_target, &next_state, &state, &wheel_min, &wheel_max, getMinutes(), getHours(), getMinutesSum());
+				frontend_else(&wheel_target, &next_state, &state, &wheel_min, &wheel_max, ds1337_getMinutes(), ds1337_getHours(), ds1337_getMinutesSum());
 			}
 		}
 			
