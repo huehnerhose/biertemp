@@ -55,14 +55,19 @@
 
 
 #define DS1337_BCD2BIN(val) (((val)&15) + ((val)>>4)*10)
+#define DS1337_BIN2BCD(val) (((val)/10)<<4) + (val)%10 
 #include "i2cmaster.h"
 
 extern uint8_t ds1337_getHours();
 extern uint8_t ds1337_getMinutes();
 extern uint8_t ds1337_getMinutesSum();
 extern uint8_t ds1337_getDate();
-extern void ds1337_setDate(uint8_t date);
+//extern void ds1337_setDate(uint8_t date);
 extern void ds1337_setAlarmMinutes(uint8_t min);
-extern void ds1337_setHour(uint8_t hour);
+//extern void ds1337_setHour(uint8_t hour);
 extern void ds1337_init();
+//extern void set(uint8_t val, uint8_t addr);
+extern void ds1337_setAlarm1();
+extern void ds1337_resetAlarm1();
+extern uint8_t ds1337_debug();
 #endif /* DS1337_H_ */

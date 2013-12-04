@@ -12,6 +12,17 @@
 #include "ds18x20.h"
 
 /************************************************************************/
+/* Add Arrows for scrollable views                                      */
+/************************************************************************/
+
+static void frontend_addArrows(){
+	lcd_gotoxy(0,1);
+	lcd_putc(LEFT);
+	lcd_gotoxy(15,1);
+	lcd_putc(RIGHT);
+}
+
+/************************************************************************/
 /* Initialize Frontend / LCD / and stuff                                */
 /************************************************************************/
 void frontend_init(uint8_t nSensors){
@@ -76,7 +87,7 @@ void frontend_init(uint8_t nSensors){
 /************************************************************************/
 /* Render Main View                                                     */
 /************************************************************************/
-void frontend_main(uint8_t **wheel_target, uint8_t *next_state, uint16_t measMiddle, uint8_t rangeMin, uint8_t rangeMax, struct Flag Flags, uint8_t timerCounter, uint8_t timerTarget){
+void frontend_main(uint8_t **wheel_target, uint8_t *next_state, uint16_t measMiddle, uint8_t rangeMin, uint8_t rangeMax, struct Flag Flags, int8_t timerCounter, uint8_t timerTarget){
 	//MAIN//
 	char buffer[16];
 	*wheel_target = NULL;
@@ -117,6 +128,7 @@ void frontend_menu_aim(uint8_t **wheel_target, uint8_t *next_state, uint8_t *sta
 	lcd_puts("set next");
 	lcd_gotoxy(4,1);
 	lcd_puts("temp aim");
+	frontend_addArrows();
 }
 
 /************************************************************************/
@@ -132,6 +144,7 @@ void frontend_menu_temp(uint8_t **wheel_target, uint8_t *next_state, uint8_t *st
 	lcd_puts("show temp");
 	lcd_gotoxy(4,1);
 	lcd_puts("details");
+	frontend_addArrows();
 }
 
 /************************************************************************/
@@ -145,6 +158,7 @@ void frontend_menu_main(uint8_t **wheel_target, uint8_t *next_state, uint8_t *st
 	lcd_clrscr();
 	lcd_gotoxy(4,0);
 	lcd_puts("Overview");
+	frontend_addArrows();
 }
 
 /************************************************************************/
@@ -171,6 +185,110 @@ void frontend_tempdetails(uint8_t **wheel_target, uint8_t *next_state, int16_t *
 	lcd_puts(":");
 	DS18X20_format_from_decicelsius(measMiddle, buffer, 10);
 	lcd_puts(buffer);
+}
+
+void frontend_tempAimMin(uint8_t **wheel_target, uint8_t *wheel_min, uint8_t *wheel_max, uint8_t *next_state, uint8_t *rangeMin){
+	char buffer[3];
+	*wheel_target = rangeMin;
+	*next_state = TEMP_AIM_MAX;
+	*wheel_min = 30;
+	*wheel_max = 99;
+	lcd_clrscr();
+	lcd_gotoxy(4,0);
+	lcd_puts("next temp");
+	lcd_gotoxy(4,1);
+	lcd_puts("min ");
+	sprintf(buffer, "%2i", *rangeMin);
+	lcd_puts(buffer);
+	lcd_putc(CELCIUS);
+	frontend_addArrows();
+}
+
+void frontend_tempAimMax(uint8_t **wheel_target, uint8_t *wheel_min, uint8_t *wheel_max, uint8_t *next_state, uint8_t *rangeMin, uint8_t *rangeMax){
+	char buffer[3];
+	*wheel_target = rangeMax;
+	*next_state = TEMP_AIM_CONFIRM;
+	*wheel_min = *rangeMin;
+	*wheel_max = 99;
+	lcd_clrscr();
+	lcd_gotoxy(4,0);
+	lcd_puts("next temp");
+	lcd_gotoxy(4,1);
+	lcd_puts("max ");
+	sprintf(buffer, "%2i", *rangeMax);
+	lcd_puts(buffer);
+	lcd_putc(CELCIUS);
+	frontend_addArrows();
+}
+
+void frontend_tempAimConfirm(uint8_t **wheel_target, uint8_t *wheel_min, uint8_t *wheel_max, uint8_t *state, uint8_t *next_state, uint8_t *rangeMin, uint8_t *rangeMax){
+	char buffer[6];
+	*wheel_target = state;
+	*next_state = TIME_TARGET;
+	*wheel_min = TEMP_AIM_CONFIRM;
+	*wheel_max = TEMP_AIM_CANCEL;
+	lcd_clrscr();
+	lcd_gotoxy(2,0);
+	lcd_puts("confirm range");
+	lcd_gotoxy(5,1);
+	sprintf(buffer, "%2i-%2i", *rangeMin, *rangeMax);
+	lcd_puts(buffer);
+	lcd_putc(CELCIUS);
+	frontend_addArrows();
+}
+
+void frontend_tempAimCancel(uint8_t **wheel_target, uint8_t *wheel_min, uint8_t *wheel_max, uint8_t *state, uint8_t *next_state){
+	*wheel_target = state;
+	*next_state = TEMP_AIM_MIN;
+	*wheel_min = TEMP_AIM_CONFIRM;
+	*wheel_max = TEMP_AIM_CANCEL;
+	lcd_clrscr();
+	lcd_gotoxy(2,0);
+	lcd_puts("reset range");
+	frontend_addArrows();
+}
+
+void frontend_timeTarget(uint8_t **wheel_target, uint8_t *wheel_min, uint8_t *wheel_max, uint8_t *next_state, uint8_t *timerTarget){
+	*wheel_target = timerTarget;
+	*next_state = TIME_CONFIRM;
+	*wheel_min = 0;
+	*wheel_max = 120;
+	lcd_clrscr();
+	lcd_gotoxy(4,0);
+	lcd_puts("Set Timer");
+	lcd_gotoxy(5,1);
+	char buffer[7];
+	sprintf(buffer, "%3imin", *timerTarget);
+	lcd_puts(buffer);
+	frontend_addArrows();
+}
+
+void frontend_timerConfirm(uint8_t **wheel_target, uint8_t *wheel_min, uint8_t *wheel_max, uint8_t *next_state, uint8_t *state, uint8_t *timerTarget, struct Flag *flag){
+	*wheel_target = state;
+	*next_state = MAIN;
+	*wheel_min = TIME_CONFIRM;
+	*wheel_max = TIME_CANCEL;
+	lcd_clrscr();
+	lcd_gotoxy(2,0);
+	lcd_puts("confirm timer");
+	lcd_gotoxy(5,1);
+	char buffer[7];
+	sprintf(buffer, "%3imin", *timerTarget);
+	lcd_puts(buffer);
+	frontend_addArrows();
+	flag->setAlarm = 1;
+}
+
+void frontend_timerCancel(uint8_t **wheel_target, uint8_t *wheel_min, uint8_t *wheel_max, uint8_t *next_state, uint8_t *state, struct Flag *flag){
+	*wheel_target = state;
+	*next_state = TIME_TARGET;
+	*wheel_min = TIME_CONFIRM;
+	*wheel_max = TIME_CANCEL;
+	lcd_clrscr();
+	lcd_gotoxy(3,0);
+	lcd_puts("reset timer");
+	frontend_addArrows();
+	flag->setAlarm = 0; //Same as (*flag).setAlarm
 }
 
 /************************************************************************/

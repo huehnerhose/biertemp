@@ -114,7 +114,8 @@ int main(void)
 		
 	//timer variables
 	////sind hier überhaupt beide notwendig? Reicht nicht nur target?
-	uint8_t timerTarget, timerCounter;
+	uint8_t timerTarget;
+	int8_t timerCounter;
 		
 	//initialize target / range values
 	rangeMax = 65;
@@ -185,7 +186,12 @@ int main(void)
 		if(Flags.change == 1){
 			Flags.change = 0;	
 			if(state == MAIN){
+				timerCounter = timerTarget - ds1337_getMinutesSum();
 				frontend_main(&wheel_target, &next_state, measMiddle, rangeMin, rangeMax, Flags, timerCounter, timerTarget);
+				if(Flags.setAlarm == 1){
+					Flags.setAlarm = 0;
+					ds1337_setAlarmMinutes(timerTarget);
+				}
 			}else if(state == MENU_AIM){	
 				frontend_menu_aim(&wheel_target, &next_state, &state, &wheel_min, &wheel_max);
 				//wheel_target = &state;
@@ -196,9 +202,25 @@ int main(void)
 			}else if(state == TEMP_DETAILS){
 				frontend_tempdetails(&wheel_target, &next_state, measVal, measMiddle, nSensors);
 			}else if (state == ALARM){
+				ds1337_resetAlarm1();
 				frontend_alarm(&wheel_target, &next_state);
+			}else if (state == TEMP_AIM_MIN){
+				frontend_tempAimMin(&wheel_target, &wheel_min, &wheel_max, &next_state, &rangeMin);
+			}else if (state == TEMP_AIM_MAX){
+				frontend_tempAimMax(&wheel_target, &wheel_min, &wheel_max, &next_state, &rangeMin, &rangeMax);
+			}else if (state == TEMP_AIM_CONFIRM){
+				frontend_tempAimConfirm(&wheel_target, &wheel_min, &wheel_max, &state, &next_state, &rangeMin, &rangeMax);
+			}else if (state == TEMP_AIM_CANCEL){
+				frontend_tempAimCancel(&wheel_target, &wheel_min, &wheel_max, &state, &next_state);
+			}else if(state == TIME_TARGET){
+				frontend_timeTarget(&wheel_target, &wheel_min, &wheel_max, &next_state, &timerTarget);
+			}else if(state == TIME_CONFIRM){
+				frontend_timerConfirm(&wheel_target, &wheel_min, &wheel_max, &next_state, &state, &timerTarget, &Flags);
+			}else if(state == TIME_CANCEL){
+				frontend_timerCancel(&wheel_target, &wheel_min, &wheel_max, &next_state, &state, &Flags);
 			}else{
-				frontend_else(&wheel_target, &next_state, &state, &wheel_min, &wheel_max, ds1337_getMinutes(), ds1337_getHours(), ds1337_getMinutesSum());
+				state = MAIN;
+				Flags.change = 1;
 			}
 		}
 		
