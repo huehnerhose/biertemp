@@ -11,6 +11,9 @@
 #include "lcd.h"
 #include "ds18x20.h"
 
+/************************************************************************/
+/* Initialize Frontend / LCD / and stuff                                */
+/************************************************************************/
 void frontend_init(uint8_t nSensors){
 	unsigned char i;
 	char buffer[16];
@@ -26,6 +29,10 @@ void frontend_init(uint8_t nSensors){
 	static const PROGMEM unsigned char de_ce[] = {0x1c,0x14,0x1c,0x3,0x4,0x4,0x3,0x0};
 	//4 - Mittelwert
 	static const PROGMEM unsigned char middle[] = {0x0,0x1,0xe,0x13,0x15,0x19,0xe,0x10};
+	//5 - LEFT
+	static const PROGMEM unsigned char left[] = {0x0,0x2,0x6,0xe,0x6,0x2,0x0,0x0};
+	//6 - RIGHT
+	static const PROGMEM unsigned char right[] = {0x0,0x8,0xc,0xe,0xc,0x8,0x0,0x0};
 
 	lcd_init(LCD_DISP_ON);
 
@@ -47,6 +54,12 @@ void frontend_init(uint8_t nSensors){
 	}
 	for(i=0;i<8;i++){
 		lcd_data((pgm_read_byte_near(&middle[i])));
+	}
+	for(i=0;i<8;i++){
+		lcd_data((pgm_read_byte_near(&left[i])));
+	}
+	for(i=0;i<8;i++){
+		lcd_data((pgm_read_byte_near(&right[i])));
 	}
 	
 	//Initialisiere Willkommen
@@ -137,7 +150,7 @@ void frontend_menu_main(uint8_t **wheel_target, uint8_t *next_state, uint8_t *st
 /************************************************************************/
 /* Render Temperaturedetails                                            */
 /************************************************************************/
-extern void frontend_tempdetails(uint8_t **wheel_target, uint8_t *next_state, int16_t *measVal, uint16_t measMiddle, uint8_t nSensors){
+void frontend_tempdetails(uint8_t **wheel_target, uint8_t *next_state, int16_t *measVal, uint16_t measMiddle, uint8_t nSensors){
 	char buffer[8];
 	*wheel_target = NULL;
 	*next_state = MENU_MAIN;
@@ -160,6 +173,9 @@ extern void frontend_tempdetails(uint8_t **wheel_target, uint8_t *next_state, in
 	lcd_puts(buffer);
 }
 
+/************************************************************************/
+/* Render Alarm-Triggered                                               */
+/************************************************************************/
 void frontend_alarm(uint8_t **wheel_target, uint8_t *next_state){
 	*next_state = MAIN;
 	*wheel_target = NULL;
@@ -167,10 +183,9 @@ void frontend_alarm(uint8_t **wheel_target, uint8_t *next_state){
 	lcd_puts("ALARM");
 }
 
-
-
-
-
+/************************************************************************/
+/* Render When nothing else is triggered                                */
+/************************************************************************/
 void frontend_else(uint8_t **wheel_target, uint8_t *next_state, uint8_t *state, uint8_t *wheel_min, uint8_t *wheel_max, uint8_t minutes, uint8_t hours, uint8_t minutesSum){
 	char buffer[16];
 	lcd_clrscr();
@@ -182,3 +197,4 @@ void frontend_else(uint8_t **wheel_target, uint8_t *next_state, uint8_t *state, 
 	lcd_puts(buffer);
 	*next_state = MAIN;
 }
+

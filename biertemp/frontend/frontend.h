@@ -29,6 +29,8 @@
 #define STALL			2
 #define CELCIUS			3
 #define AVERAGE			4
+#define LEFT			5
+#define RIGHT			6
 
 
 #include <avr/io.h>
