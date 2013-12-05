@@ -17,7 +17,7 @@ static uint8_t get(uint8_t addr){
 	return addr;
 }
 
-void set(uint8_t val, uint8_t addr){
+static void set(uint8_t val, uint8_t addr){
 	i2c_rep_start(DS1337+I2C_WRITE);
 	i2c_write(addr);
 	i2c_write( val );
@@ -32,9 +32,9 @@ static uint8_t getHourRaw(){
 }
 
 static void resetTime(){
-	set(0, DS1337_SECONDS);
 	set(0, DS1337_HOURS); //automaticly set HOUR_MODE to 24h
 	set(0, DS1337_MINUTES);
+	set(0, DS1337_SECONDS);
 }
 
 void ds1337_init(){
@@ -98,4 +98,5 @@ void ds1337_setAlarmMinutes( uint8_t min ){
 	set(DS1337_BIN2BCD(min), DS1337_ALARM1_MIN);
 	set(hour, DS1337_ALARM1_HOUR);
 	ds1337_setAlarm1();
+	resetTime();
 }

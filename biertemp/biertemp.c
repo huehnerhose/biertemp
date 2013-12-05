@@ -160,6 +160,12 @@ int main(void)
     {
 		wdt_reset();
 		
+	/*	if(PORTD &= (1<<PD0)){
+			PORTD &= ~(1<<PD0);
+		}else{
+			PORTD |= (1<<PD0);
+		}
+		*/
 		if( debounce_get_key_short( 1<<DEBOUNCE_KEY0 )){
 			Flags.change = 1;
 			state = next_state;
@@ -190,6 +196,7 @@ int main(void)
 				frontend_main(&wheel_target, &next_state, measMiddle, rangeMin, rangeMax, Flags, timerCounter, timerTarget);
 				if(Flags.setAlarm == 1){
 					Flags.setAlarm = 0;
+					
 					ds1337_setAlarmMinutes(timerTarget);
 				}
 			}else if(state == MENU_AIM){	

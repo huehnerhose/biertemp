@@ -15,7 +15,7 @@
 #define DEBOUNCE_KEY0            2
 //#define KEY1            4
 //#define KEY2            4
-#define DEBOUNCE_ALL_KEYS        (1<<KEY0)
+#define DEBOUNCE_ALL_KEYS        (1<<DEBOUNCE_KEY0)
 
 #define DEBOUNCE_TIMER TIMER2_OVF_vect
 
