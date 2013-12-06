@@ -143,7 +143,7 @@ int main(void)
 	rotary_encode_init(); //Rotary Encoder Initialization
 	debounce_init(); //Debouncing for push button
 	DDRD |= ((1<<PD0) | (1<<PD1)); //set PD1/2 as output for alarmbuzzer
-	
+	DDRD |= (1<<PD7); //set PD7 as Output for heater switch
 	
 	
 	//variables for user interaction / user interface
@@ -243,11 +243,13 @@ int main(void)
 				}
 				if(measMiddle < (rangeMin*10)){
 					Flags.heaterOn = 1;
+					PORTD |= (1<<PD7);
 					ds1337_stopClock();
 					Flags.clockStopped = 1;
 				}else if (measMiddle >= (rangeMax*10))
 				{
 					Flags.heaterOn = 0;
+					PORTD &= ~(1<<PD7);
 				}else if(Flags.clockStopped == 1){
 					ds1337_startClock();
 				}
