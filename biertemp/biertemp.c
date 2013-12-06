@@ -144,6 +144,8 @@ int main(void)
 	debounce_init(); //Debouncing for push button
 	DDRD |= ((1<<PD0) | (1<<PD1)); //set PD1/2 as output for alarmbuzzer
 	
+	
+	
 	//variables for user interaction / user interface
 	state = MAIN;
 	uint8_t *wheel_target = NULL; //dynamicly mapped to value edited by rotary wheel
@@ -192,6 +194,9 @@ int main(void)
 				if(Flags.setAlarm == 1){
 					Flags.setAlarm = 0;
 					ds1337_setAlarmMinutes(timerTarget);
+					if(Flags.clockStopped == 1){	
+						ds1337_startClock();
+					}
 				}
 				if(Flags.alarm == 1){
 					Flags.alarm = 0;
@@ -238,9 +243,13 @@ int main(void)
 				}
 				if(measMiddle < (rangeMin*10)){
 					Flags.heaterOn = 1;
-				}else if (measMiddle > (rangeMin*10))
+					ds1337_stopClock();
+					Flags.clockStopped = 1;
+				}else if (measMiddle >= (rangeMax*10))
 				{
 					Flags.heaterOn = 0;
+				}else if(Flags.clockStopped == 1){
+					ds1337_startClock();
 				}
 			}	
 		}

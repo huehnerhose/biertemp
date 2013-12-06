@@ -44,6 +44,7 @@ void ds1337_init(){
 	PORTD |= (1<<PD3);
 	GICR |= (1<<INT1);
 	resetTime();
+	ds1337_startClock();
 /*	
 	uint8_t t;
 	t = get(DS1337_CTRL);
@@ -68,6 +69,12 @@ uint8_t ds1337_getMinutes(){
 
 uint8_t ds1337_getMinutesSum(){
 	return ds1337_getMinutes() + 60*ds1337_getHours();
+}
+
+uint8_t ds1337_getSeconds(){
+	uint8_t ret;
+	ret = get(DS1337_SECONDS);
+	return DS1337_BCD2BIN(ret);
 }
 
 uint8_t ds1337_getDate(){
@@ -106,4 +113,16 @@ void ds1337_setAlarmMinutes( uint8_t min ){
 	set(hour, DS1337_ALARM1_HOUR);
 	ds1337_setAlarm1();
 	resetTime();
+}
+
+void ds1337_stopClock(){
+	uint8_t t = get(DS1337_CTRL);
+	t |= (1<<DS1337_EOSC);
+	set(t, DS1337_CTRL);
+}
+
+void ds1337_startClock(){
+	uint8_t t = get(DS1337_CTRL);
+	t &= ~(1<<DS1337_EOSC);
+	set(t, DS1337_CTRL);
 }

@@ -52,6 +52,7 @@
       <Value>NDEBUG</Value>
       <Value>F_CPU=12000000</Value>
       <Value>OW_ONE_BUS</Value>
+      <Value>DEBUG_CLOCK</Value>
     </ListValues>
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.directories.IncludePaths>

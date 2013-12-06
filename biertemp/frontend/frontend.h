@@ -47,6 +47,7 @@ typedef struct Flag{
 	unsigned char int0 : 1;
 	unsigned char alarm : 1;
 	unsigned char setAlarm : 1;
+	unsigned char clockStopped : 1;
 };
 
 extern void frontend_init(uint8_t nSensors);

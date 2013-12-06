@@ -107,12 +107,30 @@ void frontend_main(uint8_t **wheel_target, uint8_t *next_state, uint16_t measMid
 		}else{
 		lcd_putc(2); //stall
 	}
-	lcd_gotoxy(2, 1);
-	sprintf(buffer, "t:%im", timerCounter);
-	lcd_puts(buffer);
-	lcd_gotoxy(9,1);
-	sprintf(buffer, "T:%im", timerTarget);
-	lcd_puts(buffer);
+	
+	#ifdef DEBUG_CLOCK
+		#include "ds1337.h"
+		uint8_t t;
+		t = ds1337_getHours();
+		sprintf(buffer, "%2i", t);
+		lcd_puts(buffer);
+		t = ds1337_getMinutes();
+		sprintf(buffer, ":%2i", t);
+		lcd_puts(buffer);
+		t = ds1337_getSeconds();
+		sprintf(buffer, ":%2i", t);
+		lcd_puts(buffer);
+	
+	#else
+	
+		lcd_gotoxy(2, 1);
+		sprintf(buffer, "t:%im", timerCounter);
+		lcd_puts(buffer);
+		lcd_gotoxy(9,1);
+		sprintf(buffer, "T:%im", timerTarget);
+		lcd_puts(buffer);
+	
+	#endif
 }
 
 /************************************************************************/
