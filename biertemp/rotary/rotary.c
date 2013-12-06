@@ -33,8 +33,7 @@ void rotary_encode_init( void )
 	TCCR0 |= ((1<<CS01));
 	TIMSK |= (1<<TOIE0);
 	
-	DDRC |= ((1<<PC2) | (1<<PC3));
-//	PORTC |= ((1<<PC2) | (1<<PC3)); //PullUp
+	DDRC &= ~((1<<PC2) | (1<<PC3));
 	
 	int8_t new;
 	
