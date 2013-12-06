@@ -52,6 +52,7 @@
       <Value>NDEBUG</Value>
       <Value>F_CPU=12000000</Value>
       <Value>OW_ONE_BUS</Value>
+      <Value>DEBUG_CLOCK</Value>
     </ListValues>
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.directories.IncludePaths>
@@ -60,6 +61,9 @@
       <Value>../lcd</Value>
       <Value>../i2c</Value>
       <Value>../frontend</Value>
+      <Value>../ds1337</Value>
+      <Value>../debounce</Value>
+      <Value>../rotary</Value>
     </ListValues>
   </avrgcc.compiler.directories.IncludePaths>
   <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -106,6 +110,18 @@
     <Compile Include="biertemp.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="debounce\debounce.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="debounce\debounce.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ds1337\ds1337.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ds1337\ds1337.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="ds18x20\crc8.c">
       <SubType>compile</SubType>
     </Compile>
@@ -116,9 +132,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="ds18x20\ds18x20.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="ds18x20\ds18x20_supply.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="ds18x20\onewire.c">
@@ -145,12 +158,21 @@
     <Compile Include="lcd\lcd.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="rotary\rotary.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="rotary\rotary.h">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ds18x20" />
     <Folder Include="lcd" />
     <Folder Include="i2c" />
     <Folder Include="frontend" />
+    <Folder Include="ds1337" />
+    <Folder Include="debounce" />
+    <Folder Include="rotary" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>
