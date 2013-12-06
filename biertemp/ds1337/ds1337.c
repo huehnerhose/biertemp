@@ -44,6 +44,13 @@ void ds1337_init(){
 	PORTD |= (1<<PD3);
 	GICR |= (1<<INT1);
 	resetTime();
+/*	
+	uint8_t t;
+	t = get(DS1337_CTRL);
+	t &= ~((1<<DS1337_RS2) | (1<<DS1337_INTCN));
+	t |= (1<<DS1337_RS1);
+	set(t, DS1337_CTRL);
+*/
 }
 
 uint8_t ds1337_getHours(){

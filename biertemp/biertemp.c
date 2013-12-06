@@ -142,6 +142,7 @@ int main(void)
 	ds1337_init(); //ds1337
 	rotary_encode_init(); //Rotary Encoder Initialization
 	debounce_init(); //Debouncing for push button
+	DDRD |= ((1<<PD0) | (1<<PD1)); //set PD1/2 as output for alarmbuzzer
 	
 	//variables for user interaction / user interface
 	state = MAIN;
@@ -160,12 +161,6 @@ int main(void)
     {
 		wdt_reset();
 		
-	/*	if(PORTD &= (1<<PD0)){
-			PORTD &= ~(1<<PD0);
-		}else{
-			PORTD |= (1<<PD0);
-		}
-		*/
 		if( debounce_get_key_short( 1<<DEBOUNCE_KEY0 )){
 			Flags.change = 1;
 			state = next_state;
@@ -196,8 +191,10 @@ int main(void)
 				frontend_main(&wheel_target, &next_state, measMiddle, rangeMin, rangeMax, Flags, timerCounter, timerTarget);
 				if(Flags.setAlarm == 1){
 					Flags.setAlarm = 0;
-					
 					ds1337_setAlarmMinutes(timerTarget);
+				}
+				if(Flags.alarm == 1){
+					Flags.alarm = 0;
 				}
 			}else if(state == MENU_AIM){	
 				frontend_menu_aim(&wheel_target, &next_state, &state, &wheel_min, &wheel_max);
@@ -245,6 +242,17 @@ int main(void)
 				{
 					Flags.heaterOn = 0;
 				}
+			}	
+		}
+		
+		//a 4th timer would be nice
+		if(Flags.alarm == 1){
+			if( (PIND & (1<<PD0)) != 0 ){
+				PORTD &= ~(1<<PD0);
+				PORTD |= (1<<PD1);
+			}else{
+				PORTD |= (1<<PD0);
+				PORTD &= ~(1<<PD1);
 			}
 		}
     }
