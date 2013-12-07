@@ -39,8 +39,8 @@ ISR( DEBOUNCE_TIMER )                            // every 10ms
 
 //Todo Match with defined KEys in rotary.h
 void debounce_init(){
-	DDRD &= ~(1 << DDD2); //Set PD2 as input for push button of rotary encoder
-	PORTD |= (1<<PD2); //activate internal pull up resistor
+	DEBOUNCE_KEY_DDR &= ~(1 << DEBOUNCE_KEY0); //Set PD2 as input for push button of rotary encoder
+	DEBOUNCE_KEY_PORT |= (1<<DEBOUNCE_KEY0); //activate internal pull up resistor
 	
 	TCCR2 |= ( (1<<CS22) || (1<<CS21) || (1<<CS20) );
 	TCNT2 = 255-117;	//Hier wird der Timer für den Pseudo-Interrupt so eingestellt, dass alle 10ms gefeuert wird

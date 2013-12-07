@@ -9,9 +9,13 @@
 #ifndef ROTARY_H_
 #define ROTARY_H_
 
+#define ROTARY_DDR DDRD
+#define ROTARY_PIN PIND
+#define ROTARY_A PD0
+#define ROTARY_B PD1
 
-#define PHASE_A     (PINC & 1<<PC3)
-#define PHASE_B     (PINC & 1<<PC2)
+#define PHASE_A     (ROTARY_PIN & 1<<ROTARY_A)
+#define PHASE_B     (ROTARY_PIN & 1<<ROTARY_B)
 //importierter Drehimpulscode
 extern volatile int8_t enc_delta;          // -128 ... 127
 extern int8_t last;
