@@ -40,7 +40,7 @@
 #include <avr/io.h>
 #include <stdio.h>
 
-typedef struct Flag{
+struct Flag{
 	unsigned char heaterOn : 1;
 	unsigned char change : 1;
 	unsigned char measStarted : 1;
@@ -49,6 +49,8 @@ typedef struct Flag{
 	unsigned char setAlarm : 1;
 	unsigned char clockStopped : 1;
 };
+
+typedef struct Flag Flag;
 
 extern void frontend_init(uint8_t nSensors);
 

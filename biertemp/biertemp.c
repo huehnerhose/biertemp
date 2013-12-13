@@ -9,6 +9,17 @@
 #define NEWLINESTR ""
 #define uart_puts_P
 
+#define HEATER_PORT PORTD
+#define BUZZER_PORT PORTD
+#define HEATER_DDR DDRD
+#define HEATER_PIN PD4
+
+#define BUZZER_DDR DDRD
+#define BUZZER_PIN PIND
+#define BUZZER_PIN1 PD5
+#define BUZZER_PIN2 PD6
+
+
 #include <avr/io.h>
 #include <stdio.h>
 #include <util/delay.h>
@@ -142,8 +153,9 @@ int main(void)
 	ds1337_init(); //ds1337
 	rotary_encode_init(); //Rotary Encoder Initialization
 	debounce_init(); //Debouncing for push button
-	DDRD |= ((1<<PD0) | (1<<PD1)); //set PD1/2 as output for alarmbuzzer
-	DDRD |= (1<<PD7); //set PD7 as Output for heater switch
+
+	BUZZER_DDR |= ((1<<BUZZER_PIN1) | (1<<BUZZER_PIN2)); //set PD1/2 as output for alarmbuzzer
+	HEATER_DDR |= (1<<HEATER_PIN); //set PD7 as Output for heater switch
 	
 	
 	//variables for user interaction / user interface
@@ -243,13 +255,13 @@ int main(void)
 				}
 				if(measMiddle < (rangeMin*10)){
 					Flags.heaterOn = 1;
-					PORTD |= (1<<PD7);
+					HEATER_PORT |= (1<<HEATER_PIN);
 					ds1337_stopClock();
 					Flags.clockStopped = 1;
 				}else if (measMiddle >= (rangeMax*10))
 				{
 					Flags.heaterOn = 0;
-					PORTD &= ~(1<<PD7);
+					HEATER_PORT &= ~(1<<HEATER_PIN);
 				}else if(Flags.clockStopped == 1){
 					ds1337_startClock();
 				}
@@ -258,12 +270,12 @@ int main(void)
 		
 		//a 4th timer would be nice
 		if(Flags.alarm == 1){
-			if( (PIND & (1<<PD0)) != 0 ){
-				PORTD &= ~(1<<PD0);
-				PORTD |= (1<<PD1);
+			if( (BUZZER_PIN & (1<<BUZZER_PIN1)) != 0 ){
+				BUZZER_PORT &= ~(1<<BUZZER_PIN1);
+				BUZZER_PORT |= (1<<BUZZER_PIN2);
 			}else{
-				PORTD |= (1<<PD0);
-				PORTD &= ~(1<<PD1);
+				BUZZER_PORT |= (1<<BUZZER_PIN1);
+				BUZZER_PORT &= ~(1<<BUZZER_PIN2);
 			}
 		}
     }

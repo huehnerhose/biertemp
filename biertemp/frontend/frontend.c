@@ -209,7 +209,7 @@ void frontend_tempAimMin(uint8_t **wheel_target, uint8_t *wheel_min, uint8_t *wh
 	char buffer[3];
 	*wheel_target = rangeMin;
 	*next_state = TEMP_AIM_MAX;
-	*wheel_min = 30;
+	*wheel_min = 20;
 	*wheel_max = 99;
 	lcd_clrscr();
 	lcd_gotoxy(4,0);
@@ -316,7 +316,10 @@ void frontend_alarm(uint8_t **wheel_target, uint8_t *next_state){
 	*next_state = MAIN;
 	*wheel_target = NULL;
 	lcd_clrscr();
-	lcd_puts("ALARM");
+	lcd_gotoxy(5,0);
+	lcd_puts("Timer");
+	lcd_gotoxy(4,1);
+	lcd_puts("reached");
 }
 
 /************************************************************************/
