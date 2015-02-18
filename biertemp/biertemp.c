@@ -3,36 +3,9 @@
  *
  * Created: 25.11.2013 15:41:51
  *  Author: huehnerhose
- */ 
+ */
 
-#define MAXSENSORS 3
-#define NEWLINESTR ""
-#define uart_puts_P
-
-#define HEATER_PORT PORTD
-#define BUZZER_PORT PORTD
-#define HEATER_DDR DDRD
-#define HEATER_PIN PD4
-
-#define BUZZER_DDR DDRD
-#define BUZZER_PIN PIND
-#define BUZZER_PIN1 PD5
-#define BUZZER_PIN2 PD6
-
-
-#include <avr/io.h>
-#include <stdio.h>
-#include <util/delay.h>
-#include <avr/interrupt.h>
-#include <avr/wdt.h>
-
-#include "onewire.h"
-#include "ds18x20.h"
-#include "ds1337.h"
-#include "lcd.h"
-#include "frontend.h"
-#include "debounce.h"
-#include "rotary.h"
+#include "biertemp.h"
 
 /************************************************************************/
 /* Globals                                                              */
@@ -59,7 +32,7 @@ ISR(TIMER1_OVF_vect){				// Temperaturmessung anwerfen
 ISR( INT1_vect ){
 	Flags.change = 1;
 	Flags.alarm = 1;
-	state = ALARM;	
+	state = ALARM;
 }
 
 /************************************************************************/
@@ -77,27 +50,27 @@ static uint8_t search_sensors(void)
 	ow_reset();
 
 	nSensors = 0;
-	
+
 	diff = OW_SEARCH_FIRST;
 	while ( diff != OW_LAST_DEVICE && nSensors < MAXSENSORS ) {
 		DS18X20_find_sensor( &diff, &id[0] );
-		
+
 		if( diff == OW_PRESENCE_ERR ) {
 			//uart_puts_P( "No Sensor found" NEWLINESTR );
 			break;
 		}
-		
+
 		if( diff == OW_DATA_ERR ) {
 			//uart_puts_P( "Bus Error" NEWLINESTR );
 			break;
 		}
-		
+
 		for ( i=0; i < OW_ROMCODE_SIZE; i++ )
 		gSensorIDs[nSensors][i] = id[i];
-		
+
 		nSensors++;
 	}
-	
+
 	return nSensors;
 }
 
@@ -119,22 +92,22 @@ static uint16_t calcMeasMiddle(int16_t meas[], uint8_t nSensors){
 /************************************************************************/
 int main(void)
 {
-	
+
 	//temperature range for heater target
 	uint8_t rangeMax, rangeMin;
-		
+
 	//timer variables
-	////sind hier überhaupt beide notwendig? Reicht nicht nur target?
+	////sind hier ?berhaupt beide notwendig? Reicht nicht nur target?
 	uint8_t timerTarget;
 	int8_t timerCounter;
-		
+
 	//initialize target / range values
 	rangeMax = 65;
 	rangeMin = 26;
 	Flags.heaterOn = 0;
 	timerCounter = 23;
 	timerTarget = 120;
-	
+
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize ds18x20 / temperature measurement
 	//////////////////////////////////////////////////////////////////////////
@@ -145,7 +118,7 @@ int main(void)
 	//set timer for interrupt driven measurement
 	TCCR1B |= ((1<<CS12));
 	TIMSK |= (1<<TOIE1);
-	
+
 	//////////////////////////////////////////////////////////////////////////
 	// Initialize peripherials
 	//////////////////////////////////////////////////////////////////////////
@@ -156,8 +129,8 @@ int main(void)
 
 	BUZZER_DDR |= ((1<<BUZZER_PIN1) | (1<<BUZZER_PIN2)); //set PD1/2 as output for alarmbuzzer
 	HEATER_DDR |= (1<<HEATER_PIN); //set PD7 as Output for heater switch
-	
-	
+
+
 	//variables for user interaction / user interface
 	state = MAIN;
 	uint8_t *wheel_target = NULL; //dynamicly mapped to value edited by rotary wheel
@@ -174,18 +147,18 @@ int main(void)
 	while(1)
     {
 		wdt_reset();
-		
+
 		if( debounce_get_key_short( 1<<DEBOUNCE_KEY0 )){
 			Flags.change = 1;
 			state = next_state;
 		}
-		
+
 		//Get rotaryencoder input and check/generate user interface adjustment
 		offset = rotary_encode_read4();
 		if(offset != 0){
 			Flags.change = 1;
 
-			if(wheel_target != NULL){	
+			if(wheel_target != NULL){
 				if(*wheel_target == wheel_min && offset == -1){
 					*wheel_target = wheel_max;
 				}else if(*wheel_target == wheel_max && offset == 1){
@@ -199,21 +172,21 @@ int main(void)
 
 		//Draw Userinterface
 		if(Flags.change == 1){
-			Flags.change = 0;	
+			Flags.change = 0;
 			if(state == MAIN){
 				timerCounter = timerTarget - ds1337_getMinutesSum();
 				frontend_main(&wheel_target, &next_state, measMiddle, rangeMin, rangeMax, Flags, timerCounter, timerTarget);
 				if(Flags.setAlarm == 1){
 					Flags.setAlarm = 0;
 					ds1337_setAlarmMinutes(timerTarget);
-					if(Flags.clockStopped == 1){	
+					if(Flags.clockStopped == 1){
 						ds1337_startClock();
 					}
 				}
 				if(Flags.alarm == 1){
 					Flags.alarm = 0;
 				}
-			}else if(state == MENU_AIM){	
+			}else if(state == MENU_AIM){
 				frontend_menu_aim(&wheel_target, &next_state, &state, &wheel_min, &wheel_max);
 				//wheel_target = &state;
 			}else if(state == MENU_TEMP){
@@ -244,14 +217,14 @@ int main(void)
 				Flags.change = 1;
 			}
 		}
-		
+
 		//Check whether measurement is ready and update all measurement holding variables
 		if(Flags.measStarted == 1){
 			if(DS18X20_conversion_in_progress() == 0){
 				Flags.measStarted = 0;
-				measMiddle = calcMeasMiddle(measVal, nSensors);				
+				measMiddle = calcMeasMiddle(measVal, nSensors);
 				if(state == MAIN || state == TEMP_DETAILS){
-					Flags.change = 1;	
+					Flags.change = 1;
 				}
 				if(measMiddle < (rangeMin*10)){
 					Flags.heaterOn = 1;
@@ -265,9 +238,9 @@ int main(void)
 				}else if(Flags.clockStopped == 1){
 					ds1337_startClock();
 				}
-			}	
+			}
 		}
-		
+
 		//a 4th timer would be nice
 		if(Flags.alarm == 1){
 			if( (BUZZER_PIN & (1<<BUZZER_PIN1)) != 0 ){

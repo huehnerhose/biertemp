@@ -3,7 +3,7 @@
  *
  * Created: 04.12.2013 10:16:38
  *  Author: huehnerhose
- */ 
+ */
 
 
 #ifndef DEBOUNCE_H_
